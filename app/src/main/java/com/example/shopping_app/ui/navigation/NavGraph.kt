@@ -2,9 +2,13 @@ package com.example.shopping_app.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.shopping_app.ui.screens.LoginScreen
+import com.example.shopping_app.ui.screens.ProductDetailScreen
+import com.example.shopping_app.ui.screens.ProductScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -13,12 +17,20 @@ fun AppNavGraph(navController: NavHostController) {
         startDestination = "auth"
     ) {
         composable("auth") {
-            LoginScreen()
+            LoginScreen(navController = navController)
         }
 
         composable("home") {
-            // 這裡放你之後要做的首頁
-            // Text("Welcome to Home Screen!")
+            // homePage
+            ProductScreen(navController = navController)
+        }
+
+        composable(
+            route = "product_detail/{productId}",
+            arguments = listOf(navArgument("productId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("productId") ?: 0
+            ProductDetailScreen(productId = id, navController = navController)
         }
     }
 }
