@@ -35,14 +35,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.shopping_app.R
 import com.example.shopping_app.controller.LoginController
 
 @Composable
-fun LoginScreen(loginController: LoginController = viewModel()) {
+fun LoginScreen(loginController: LoginController = viewModel(), navController: NavHostController) {
     var isLogin by remember { mutableStateOf(true) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -113,7 +115,7 @@ fun LoginScreen(loginController: LoginController = viewModel()) {
 
         Spacer(modifier = Modifier.height(40.dp))
         if (isLogin) {
-            LoginForm(loginController)
+            LoginForm(loginController, navController)
         } else {
             RegisterForm(isLogin = false, loginController = loginController) {
                 isLogin = true
@@ -123,7 +125,7 @@ fun LoginScreen(loginController: LoginController = viewModel()) {
 }
 
 @Composable
-fun LoginForm(loginController: LoginController) {
+fun LoginForm(loginController: LoginController, navController: NavHostController) {
     var passwordVisible by remember { mutableStateOf(false) }
     Column {
         // Email 輸入框
@@ -179,7 +181,11 @@ fun LoginForm(loginController: LoginController) {
             onClick = {
                 loginController.login(
                     onSuccess = {
+                        navController.navigate("home") {
+                            popUpTo("auth") { inclusive = true }
+                        }
                         Log.e("test", "login successful")
+
                     },
                     onFailure = {
                         Log.e("test123", "login fail")
