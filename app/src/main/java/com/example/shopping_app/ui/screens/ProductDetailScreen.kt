@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -40,22 +41,24 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
 import com.example.shopping_app.R
+import com.example.shopping_app.controller.CartController
 import com.example.shopping_app.controller.ProductController
 import com.example.shopping_app.model.ProductResponse
 
 
 @Composable
 fun ProductDetailScreen(
-    productId: Int, navController: NavHostController
+    productId: Long, navController: NavHostController
 ) {
     val productController: ProductController = viewModel()
+    val cartController: CartController = viewModel()
     Scaffold(
         topBar = {
             TopAppBar(onBackClick = {
                 navController.popBackStack();
             }, onShoppingCartClick = {})
         },
-        bottomBar = { BottomAppBar() }
+        bottomBar = { BottomAppBar(productId, cartController) }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             ProductPicture()
@@ -109,8 +112,8 @@ fun ProductPicture() {
 }
 
 @Composable
-fun ProductDescription(productId: Int, productController: ProductController) {
-    val product = productController.productList.find { it.id.toInt() == productId }
+fun ProductDescription(productId: Long, productController: ProductController) {
+    val product = productController.productList.find { it.id.toLong() == productId }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -125,21 +128,31 @@ fun ProductDescription(productId: Int, productController: ProductController) {
 }
 
 @Composable
-fun BottomAppBar() {
+fun BottomAppBar(productId: Long, cartController: CartController) {
+    val isLoading = cartController.isLoading
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         OutlinedButton(
-            onClick = {}, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(
+            onClick = {
+                cartController.addToCart(productId)
+            },
+            modifier = Modifier.weight(1f),
+            enabled = !isLoading,
+            colors = ButtonDefaults.buttonColors(
                 contentColor = Color.Blue,
                 containerColor = Color.Transparent
             ),
             shape = RoundedCornerShape(10.dp),
             border = BorderStroke(2.dp, Color.Blue)
         ) {
-            Text("Add to Cart")
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+            } else {
+                Text("Add to Cart")
+            }
         }
         Spacer(modifier = Modifier.size(8.dp))
         Button(

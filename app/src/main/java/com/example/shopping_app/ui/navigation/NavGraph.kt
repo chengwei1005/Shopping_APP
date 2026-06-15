@@ -1,5 +1,6 @@
 package com.example.shopping_app.ui.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -27,9 +28,9 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable(
             route = "product_detail/{productId}",
-            arguments = listOf(navArgument("productId") { type = NavType.IntType })
+            arguments = listOf(navArgument("productId") { type = NavType.LongType })
         ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("productId") ?: 0
+            val id = backStackEntry.arguments?.getLong("productId") ?: 0L
             ProductDetailScreen(productId = id, navController = navController)
         }
     }

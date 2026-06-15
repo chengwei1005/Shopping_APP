@@ -81,8 +81,8 @@ fun ProductScreen(
             CategorySection(categories)
         }
 
-        //商品 (每行兩個)
-        items(products) { product ->
+        //商品
+        items(productController.productList, key = { product -> product.id }) { product ->
             ProductItem(
                 id = product.id,
                 name = product.name,
