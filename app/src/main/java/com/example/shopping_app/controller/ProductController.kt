@@ -11,6 +11,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.example.shopping_app.network.ApiClient
 
 class ProductController : ViewModel() {
 
@@ -28,12 +29,7 @@ class ProductController : ViewModel() {
         viewModelScope.launch {
             isLoading = true
             try {
-                val apiService = Retrofit.Builder()
-                    .baseUrl("http://10.0.2.2:8080/") // 模擬器連線位址
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-                    .create(ApiService::class.java)
-                val response = apiService.getAllProducts()
+                val response = ApiClient.retrofitService.getAllProducts()
                 productList = response
             } catch (e: Exception) {
                 Log.e("API_ERROR", "Fetch products failed: ${e.message}")
