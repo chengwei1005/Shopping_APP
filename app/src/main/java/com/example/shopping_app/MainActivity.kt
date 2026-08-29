@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.shopping_app.controller.CartController
 import com.example.shopping_app.controller.LoginController
 import com.example.shopping_app.ui.navigation.AppNavGraph
 
@@ -55,7 +56,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             androidx.compose.material3.MaterialTheme {
                 val navController = rememberNavController()
-                AppNavGraph(navController = navController)
+                val cartController: CartController = viewModel()
+                AppNavGraph(navController = navController, cartController = cartController)
             }
         }
     }
