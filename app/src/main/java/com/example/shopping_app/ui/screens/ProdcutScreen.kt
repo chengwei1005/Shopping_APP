@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -29,6 +30,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -49,16 +51,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.shopping_app.controller.CartController
 import com.example.shopping_app.controller.ProductController
+import coil.compose.AsyncImage
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun ProductScreen(
     navController: NavController,
-    productController: ProductController = viewModel()
+    productController: ProductController = viewModel(),
+    cartController: CartController = viewModel()
 ) {
+    LaunchedEffect(Unit) {
+        cartController.getAllCartItems()
+    }
     val categories =
-        listOf("Fashion", "Electronics", "Beauty", "Home & Living", " Food & Groceries")
+        listOf("Meats & Fishes", "Vegetables", "Fruits", "Home & Living")
     val products = productController.productList
+    val cartItemCount = cartController.cartList.sumOf { it.quantity }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -68,7 +80,11 @@ fun ProductScreen(
     ) {
         // 第一行：搜尋列
         item(span = { GridItemSpan(2) }) {
-            TopSearchBar(onSearchClick = {}, onMenuClick = {})
+            TopSearchBar(
+                cartItemCount = cartItemCount,
+                onSearchClick = {},
+                onMenuClick = {},
+                onCartClick = { navController.navigate("cart") })
         }
 
         // 第二行：Banner
@@ -84,10 +100,10 @@ fun ProductScreen(
         //商品
         items(productController.productList, key = { product -> product.id }) { product ->
             ProductItem(
-                id = product.id,
+                id = product.id.toString(),
                 name = product.name,
                 price = product.price.toString(),
-                imageRes = R.drawable.test_image,
+                imageRes = product.imageUrl,
                 navController
             )
         }
@@ -96,12 +112,12 @@ fun ProductScreen(
 
 
 @Composable
-fun TopSearchBar(onSearchClick: () -> Unit, onMenuClick: () -> Unit) {
+fun TopSearchBar(cartItemCount: Int,onSearchClick: () -> Unit, onMenuClick: () -> Unit, onCartClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
         // 選單按鈕
@@ -112,7 +128,26 @@ fun TopSearchBar(onSearchClick: () -> Unit, onMenuClick: () -> Unit) {
                 modifier = Modifier.size(28.dp)
             )
         }
+        Spacer(modifier = Modifier.weight(1f))
 
+        IconButton(onClick = onCartClick) {
+            BadgedBox(
+                badge = {
+                    if (cartItemCount > 0) {
+                        Badge {
+                            Text(text = if (cartItemCount > 99) "99+" else cartItemCount.toString())
+                        }
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ShoppingCart,
+                    contentDescription = "ShoppingCart",
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(8.dp))
         // 搜尋按鈕
         IconButton(onClick = onSearchClick) {
             Icon(
@@ -137,23 +172,23 @@ fun PromotionBanner() {
         Box {
             // 背景圖
             Image(
-                painter = painterResource(id = R.drawable.image_background),
+                painter = painterResource(id = R.drawable.grocery_store),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
-            // 文字內容
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("New Release", color = Color.Gray, fontSize = 14.sp)
-                Text("Air Jordan 5", fontWeight = FontWeight.Bold, fontSize = 24.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD35400))
-                ) {
-                    Text("Shop Now")
-                }
-            }
+
+//            Column(modifier = Modifier.padding(16.dp)) {
+//                Text("New Release", color = Color.Gray, fontSize = 14.sp)
+//                Text("Fresh Fruits", fontWeight = FontWeight.Bold, fontSize = 24.sp)
+//                Spacer(modifier = Modifier.height(8.dp))
+//                Button(
+//                    onClick = {},
+//                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD35400))
+//                ) {
+//                    Text("Shop Now")
+//                }
+//            }
         }
     }
 }
@@ -195,10 +230,10 @@ fun CategorySection(categories: List<String>) {
 
 @Composable
 fun ProductItem(
-    id: Long,
+    id: String,
     name: String,
     price: String,
-    imageRes: Int,
+    imageRes: String?,
     navController: NavController
 ) {
     Card(
@@ -228,8 +263,8 @@ fun ProductItem(
                     }
             ) {
                 // 圖片
-                Image(
-                    painter = painterResource(id = imageRes),
+                AsyncImage(
+                    model = imageRes,
                     contentDescription = name,
                     modifier = Modifier
                         .size(100.dp)

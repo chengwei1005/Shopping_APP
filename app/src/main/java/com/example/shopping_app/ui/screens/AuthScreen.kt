@@ -1,6 +1,8 @@
 package com.example.shopping_app.ui.screens
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,6 +44,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.shopping_app.R
 import com.example.shopping_app.controller.LoginController
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun LoginScreen(loginController: LoginController = viewModel(), navController: NavHostController) {
@@ -176,19 +179,29 @@ fun LoginForm(loginController: LoginController, navController: NavHostController
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        // 登入按鈕
+        // Login button
+        val context = LocalContext.current
         Button(
             onClick = {
                 loginController.login(
-                    onSuccess = {
+                    onSuccess = { token ->
+                        val sharedPreferences =
+                            context.getSharedPreferences("AuthPrefs", Context.MODE_PRIVATE)
+                        sharedPreferences.edit().apply {
+                            putString("JWT_TOKEN", token)
+                            apply()
+                        }
+                        Toast.makeText(context, "Login successful！", Toast.LENGTH_SHORT).show()
                         navController.navigate("home") {
                             popUpTo("auth") { inclusive = true }
                         }
                         Log.e("test", "login successful")
 
                     },
-                    onFailure = {
-                        Log.e("test123", "login fail")
+                    onFailure = { errorMessage ->
+                        Log.e("test", "login fail")
+                        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+
                     }
                 )
             },

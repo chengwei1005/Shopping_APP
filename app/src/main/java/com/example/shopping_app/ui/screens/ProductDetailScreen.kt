@@ -2,61 +2,62 @@ package com.example.shopping_app.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.navArgument
 import com.example.shopping_app.R
 import com.example.shopping_app.controller.CartController
 import com.example.shopping_app.controller.ProductController
-import com.example.shopping_app.model.ProductResponse
 
 
 @Composable
 fun ProductDetailScreen(
-    productId: Long, navController: NavHostController
+    productId: Long, navController: NavHostController, cartController: CartController
 ) {
     val productController: ProductController = viewModel()
-    val cartController: CartController = viewModel()
+//    val cartController: CartController = viewModel()
+    LaunchedEffect(Unit) {
+        cartController.getAllCartItems()
+    }
+    val cartItemCount = cartController.cartList.sumOf { it.quantity }
     Scaffold(
         topBar = {
-            TopAppBar(onBackClick = {
-                navController.popBackStack();
-            }, onShoppingCartClick = {})
+            TopAppBar(
+                cartItemCount = cartItemCount,
+                onBackClick = { navController.popBackStack() },
+                onShoppingCartClick = { navController.navigate("cart") }
+            )
         },
         bottomBar = { BottomAppBar(productId, cartController) }
     ) { innerPadding ->
@@ -68,8 +69,13 @@ fun ProductDetailScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(onBackClick: () -> Unit, onShoppingCartClick: () -> Unit) {
+fun TopAppBar(
+    cartItemCount: Int,
+    onBackClick: () -> Unit,
+    onShoppingCartClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -84,15 +90,28 @@ fun TopAppBar(onBackClick: () -> Unit, onShoppingCartClick: () -> Unit) {
                 modifier = Modifier.size(28.dp)
             )
         }
-
-        IconButton(onClick = onShoppingCartClick) {
-            Icon(
-                imageVector = Icons.Default.ShoppingCart,
-                contentDescription = "shoppingCart",
-                modifier = Modifier.size(28.dp)
-            )
+        BadgedBox(
+            modifier = Modifier.padding(end = 8.dp),
+            badge = {
+                if (cartItemCount > 0) {
+                    Badge(
+                        containerColor = Color.Red,
+                        contentColor = Color.White,
+                        modifier = Modifier.offset(x = (-8).dp, y = 8.dp)
+                    ) {
+                        Text(text = cartItemCount.toString())
+                    }
+                }
+            }
+        ) {
+            IconButton(onClick = onShoppingCartClick) {
+                Icon(
+                    imageVector = Icons.Default.ShoppingCart,
+                    contentDescription = "shoppingCart",
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         }
-
     }
 }
 
@@ -156,7 +175,9 @@ fun BottomAppBar(productId: Long, cartController: CartController) {
         }
         Spacer(modifier = Modifier.size(8.dp))
         Button(
-            onClick = {},
+            onClick = {
+                cartController.getAllCartItems()
+            },
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
