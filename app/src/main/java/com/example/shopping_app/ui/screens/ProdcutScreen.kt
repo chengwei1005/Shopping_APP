@@ -83,7 +83,7 @@ fun ProductScreen(
             TopSearchBar(
                 cartItemCount = cartItemCount,
                 onSearchClick = {},
-                onMenuClick = {},
+                onMenuClick = {navController.navigate("orders")},
                 onCartClick = { navController.navigate("cart") })
         }
 

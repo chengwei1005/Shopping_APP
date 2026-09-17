@@ -24,7 +24,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.sp
@@ -52,7 +55,15 @@ fun CartScreen(cartController: CartController = viewModel(), navController: NavH
                         contentDescription = "Back"
                     )
                 }
-            })
+            },
+                actions = {
+                    IconButton(onClick = { navController.navigate("orders") }) {
+                        Icon(
+                            imageVector = Icons.Default.List,
+                            contentDescription = "History Orders"
+                        )
+                    }
+                })
         },
         bottomBar = {
             if (cartController.cartList.isNotEmpty()) {
@@ -74,7 +85,6 @@ fun CartScreen(cartController: CartController = viewModel(), navController: NavH
             if (cartController.isLoading && cartController.cartList.isEmpty()) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (cartController.cartList.isEmpty()) {
-                // 購物車空空的提示
                 Text(text = "Your cart is empty", modifier = Modifier.align(Alignment.Center))
             } else {
                 LazyColumn(
@@ -109,7 +119,6 @@ fun CartItemRow(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 左側：商品圖片占位
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -131,7 +140,7 @@ fun CartItemRow(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = item.productName, //
+                    text = item.productName,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF1A1D20)
