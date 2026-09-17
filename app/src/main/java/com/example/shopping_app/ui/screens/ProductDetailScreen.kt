@@ -39,11 +39,12 @@ import androidx.navigation.NavHostController
 import com.example.shopping_app.R
 import com.example.shopping_app.controller.CartController
 import com.example.shopping_app.controller.ProductController
+import java.util.UUID
 
 
 @Composable
 fun ProductDetailScreen(
-    productId: Long, navController: NavHostController, cartController: CartController
+    productId: String, navController: NavHostController, cartController: CartController
 ) {
     val productController: ProductController = viewModel()
 //    val cartController: CartController = viewModel()
@@ -131,8 +132,8 @@ fun ProductPicture() {
 }
 
 @Composable
-fun ProductDescription(productId: Long, productController: ProductController) {
-    val product = productController.productList.find { it.id.toLong() == productId }
+fun ProductDescription(productId: String, productController: ProductController) {
+    val product = productController.productList.find { it.id == productId }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -147,7 +148,7 @@ fun ProductDescription(productId: Long, productController: ProductController) {
 }
 
 @Composable
-fun BottomAppBar(productId: Long, cartController: CartController) {
+fun BottomAppBar(productId: String, cartController: CartController) {
     val isLoading = cartController.isLoading
     Row(
         modifier = Modifier

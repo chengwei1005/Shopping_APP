@@ -1,6 +1,7 @@
 package com.example.shopping_app.model
 
 data class CartItemRequest(
-    val cartItemId: Long,
+    val productId: String,
+    val cartItemId: Long? = null,
     val quantity: Int
 )

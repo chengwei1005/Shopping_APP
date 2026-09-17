@@ -29,7 +29,7 @@ class CartController(application: Application) : AndroidViewModel(application) {
     val subtotalAmount: Double
         get() = cartList.sumOf { it.unitPrice * it.quantity }
 
-    fun addToCart(productId: Long, quantity: Int = 1) {
+    fun addToCart(productId: String, quantity: Int = 1) {
         viewModelScope.launch {
             isLoading = true
             try {
@@ -41,7 +41,11 @@ class CartController(application: Application) : AndroidViewModel(application) {
                 }
                 val authHeader = "Bearer $myToken"
 
-                val request = CartItemRequest(productId, quantity)
+                val request = CartItemRequest(
+                    productId = productId,
+                    quantity = quantity,
+                    cartItemId = null
+                )
                 val response = ApiClient.retrofitService.addToCart(authHeader, request)
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "加入成功: ${response.body()?.productName}")
@@ -112,7 +116,8 @@ class CartController(application: Application) : AndroidViewModel(application) {
                 } else {
                     val request = CartItemRequest(
                         cartItemId = currentItem.cartItemId,
-                        quantity = newQuantity
+                        quantity = newQuantity,
+                        productId = currentItem.productId
                     )
 
                     val response =
