@@ -3,10 +3,9 @@
 這是一個完整的全端電商應用程式 (MVP)，前後端完全分離。
 前端採用現代化的 Android UI 框架 **Jetpack Compose**，後端則基於 **Spring Boot** 提供 RESTful API 服務，並結合 Spring Security 與 JWT 實作安全的會員認證機制。
 
-## 📱 畫面預覽 (Screenshots)
 | 首頁 (商品列表) | 購物車 (Cart) | 歷史訂單 (Orders) |
 | :---: | :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/98ee901a-635d-4716-97be-49b8481cffd1" width="250"/> | <img src="https://github.com/user-attachments/assets/ec5e6fb1-db85-4be2-8e2c-ba85aac32774" width="250"/> | <img src="https://github.com/user-attachments/assets/4c1a666d-8cd5-46a7-98ee-1e379e10d5a1" width="250"/> |
+| <img src="https://github.com/user-attachments/assets/2c586fed-93df-4d06-a839-265c06fbfdfc" width="250"/> | <img src="https://github.com/user-attachments/assets/ec5e6fb1-db85-4be2-8e2c-ba85aac32774" width="250"/> | <img src="https://github.com/user-attachments/assets/4c1a666d-8cd5-46a7-98ee-1e379e10d5a1" width="250"/> |
 
 ## ✨ 核心功能 (Features)
 
