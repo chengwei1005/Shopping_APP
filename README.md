@@ -6,10 +6,9 @@
 ## 📱 畫面預覽 (Screenshots)
 | 首頁 (商品列表) | 購物車 (Cart) | 歷史訂單 (Orders) |
 | :---: | :---: | :---: |
-| <img src="<img width="1080" height="2220" alt="Screenshot_20261001_222637" src="https://github.com/user-attachments/assets/98ee901a-635d-4716-97be-49b8481cffd1" />
-" width="250"/> | <img src="<img width="1080" height="2220" alt="Screenshot_20261001_222823" src="https://github.com/user-attachments/assets/ec5e6fb1-db85-4be2-8e2c-ba85aac32774" />
-" width="250"/> | <img src="<img width="1080" height="2220" alt="Screenshot_20261001_222801" src="https://github.com/user-attachments/assets/4c1a666d-8cd5-46a7-98ee-1e379e10d5a1" />
-" width="250"/> |
+| 首頁 (商品列表) | 購物車 (Cart) | 歷史訂單 (Orders) |
+| :---: | :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/98ee901a-635d-4716-97be-49b8481cffd1" width="250"/> | <img src="https://github.com/user-attachments/assets/ec5e6fb1-db85-4be2-8e2c-ba85aac32774" width="250"/> | <img src="https://github.com/user-attachments/assets/4c1a666d-8cd5-46a7-98ee-1e379e10d5a1" width="250"/> |
 
 ## ✨ 核心功能 (Features)
 
