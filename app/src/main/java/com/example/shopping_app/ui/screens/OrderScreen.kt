@@ -60,6 +60,15 @@ fun OrderScreen(
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
 
+                orderController.errorMessage != null -> {
+                    Text(
+                        text = orderController.errorMessage!!,
+                        fontSize = 18.sp,
+                        color = Color.Red,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+
                 orderList.isEmpty() -> {
                     Text(
                         text = "No Order！",

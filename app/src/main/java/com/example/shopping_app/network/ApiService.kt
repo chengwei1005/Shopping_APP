@@ -63,4 +63,7 @@ interface ApiService {
 
     @GET("api/orders")
     suspend fun getAllOrders(@Header("Authorization") token: String): Response<List<OrderResponse>>
+
+    @POST("api/orders/create")
+    suspend fun createOrder(@Header("Authorization") token: String): Response<OrderResponse>
 }

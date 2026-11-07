@@ -17,12 +17,16 @@ class OrderController(application: Application) : AndroidViewModel(application) 
     private val tokenManager = TokenManager(application)
     var isLoading by mutableStateOf(false)
         private set
-
     var orderList by mutableStateOf<List<OrderResponse>>(emptyList())
+        private set
+
+    var errorMessage by mutableStateOf<String?>(null)
+        private set
 
     fun getTotalOrder() {
         viewModelScope.launch {
             isLoading = true
+            errorMessage = null
             try {
                 val myToken = tokenManager.getToken()
                 if (myToken == null) {

@@ -2,6 +2,8 @@ package com.example.shopping_app.ui.screens
 
 import android.R
 import android.annotation.SuppressLint
+import android.app.Application
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,29 +35,69 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.shopping_app.controller.CartController
+import com.example.shopping_app.token.TokenManager
+import com.example.shopping_app.viewModel.CheckoutViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CartScreen(cartController: CartController = viewModel(), navController: NavHostController) {
+fun CartScreen(
+    cartController: CartController = viewModel(),
+    navController: NavHostController
+) {
+
+    val context = LocalContext.current
+    val application = context.applicationContext as Application
+    val checkoutViewModel: CheckoutViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                val tokenManager = TokenManager(application)
+                @Suppress("UNCHECKED_CAST")
+                return CheckoutViewModel(tokenManager) as T
+            }
+        }
+    )
+
+    LaunchedEffect(checkoutViewModel.errorMessage) {
+        checkoutViewModel.errorMessage?.let { msg ->
+            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+            checkoutViewModel.clearErrorMessage()
+        }
+    }
+
+    LaunchedEffect(checkoutViewModel.isCheckoutSuccess) {
+        if (checkoutViewModel.isCheckoutSuccess) {
+            Toast.makeText(context, "Checkout successful！", Toast.LENGTH_SHORT).show()
+            navController.navigate("orders") {
+                popUpTo(navController.graph.startDestinationId) {
+                    inclusive = false
+                }
+            }
+        }
+    }
+
     LaunchedEffect(key1 = true) {
         cartController.getAllCartItems()
     }
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Shopping Cart") }, navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-            },
+            TopAppBar(
+                title = { Text("Shopping Cart") }, navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = { navController.navigate("orders") }) {
                         Icon(
@@ -70,8 +112,9 @@ fun CartScreen(cartController: CartController = viewModel(), navController: NavH
                 CartItemTotal(
                     subtotal = cartController.subtotalAmount,
                     deliveryFee = 30.0,
+                    isLoading = checkoutViewModel.isLoading,
                     onCheckoutClick = {
-
+                        checkoutViewModel.checkout()
                     }
                 )
             }
@@ -161,7 +204,7 @@ fun CartItemRow(
                 // 減號按鈕
                 IconButton(
                     onClick = {
-                        cartController.updateItemQuantity(item.cartItemId,false)
+                        cartController.updateItemQuantity(item.cartItemId, false)
                     },
                     modifier = Modifier
                         .size(36.dp)
@@ -181,7 +224,7 @@ fun CartItemRow(
                 // 加號按鈕
                 IconButton(
                     onClick = {
-                        cartController.updateItemQuantity(item.cartItemId,true)
+                        cartController.updateItemQuantity(item.cartItemId, true)
                     },
                     modifier = Modifier
                         .size(36.dp)
@@ -204,6 +247,7 @@ fun CartItemRow(
 fun CartItemTotal(
     subtotal: Double,
     deliveryFee: Double = 2.00,
+    isLoading: Boolean = false,
     onCheckoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -227,21 +271,28 @@ fun CartItemTotal(
             PriceRow(label = "Total", price = subtotal + deliveryFee)
             Spacer(modifier = Modifier.height(24.dp))
             Button(
-                onClick = {},
+                onClick = onCheckoutClick,
+                enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2F55A4))
             ) {
-                Text(
-                    text = "Proceed To checkout",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        text = "Proceed To checkout",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
             }
-
         }
     }
 }
