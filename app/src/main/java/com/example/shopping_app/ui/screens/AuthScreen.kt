@@ -120,7 +120,7 @@ fun LoginScreen(loginController: LoginController = viewModel(), navController: N
         if (isLogin) {
             LoginForm(loginController, navController)
         } else {
-            RegisterForm(isLogin = false, loginController = loginController) {
+            RegisterForm(loginController = loginController) {
                 isLogin = true
             }
         }
@@ -233,11 +233,11 @@ fun LoginForm(loginController: LoginController, navController: NavHostController
 
 @Composable
 fun RegisterForm(
-    isLogin: Boolean,
     loginController: LoginController,
     onRegisterSuccess: () -> Unit
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     Column(modifier = Modifier.fillMaxWidth()) {
         Text("Name", fontWeight = FontWeight.SemiBold)
         OutlinedTextField(
@@ -326,29 +326,28 @@ fun RegisterForm(
         }
 
         Spacer(modifier = Modifier.height(30.dp))
-
-        //動態改變按鈕文字與功能
         Button(
             onClick = {
-                if (isLogin) {
-                    loginController.email.isNotEmpty() && loginController.password.isNotEmpty()
-                    loginController.login(
-                        onSuccess = { /* 1.存token 2.進入主頁 */
-                            Log.e("test", "login successful")
-                        },
-                        onFailure = { /* 顯示失敗訊息 */
-                            Log.e("test", "login fail")
-                        })
-                } else {
-                    loginController.register(
-                        onSuccess = { /* 顯示註冊成功並回到註冊頁面 */
-                            Log.e("test", "register successful")
-                            onRegisterSuccess()
-                        },
-                        onFailure = { /* 顯示失敗訊息並清空欄位資料 */
-                            Log.e("test", "register fail")
-                        })
-                }
+                loginController.register(
+                    onSuccess = {
+                        Toast.makeText(
+                            context,
+                            "Register successful, Please log in",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        loginController.password = ""
+                        loginController.confirmPassword = ""
+                        onRegisterSuccess()
+                    },
+                    onFailure = {
+                        Toast.makeText(
+                            context,
+                            "Register failed, Please try again",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        loginController.password = ""
+                        loginController.confirmPassword = ""
+                    })
             },
             enabled = !loginController.isPasswordMismatch && loginController.name.isNotEmpty() && loginController.email.isNotEmpty() && loginController.password.isNotEmpty(),
             modifier = Modifier
@@ -357,7 +356,7 @@ fun RegisterForm(
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D5FEF))
         ) {
-            Text(if (isLogin) "Login" else "Create Account", color = Color.White)
+            Text("Create Account", color = Color.White)
         }
     }
 }
